@@ -23,6 +23,7 @@ ENV/
 .ruff_cache/
 .pytest_cache/
 .mypy_cache/
+.mplcache/
 
 # Editors / OS
 .vscode/
