@@ -29,6 +29,7 @@ Config via environment variables:
 import csv
 import os
 import socket
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
@@ -46,6 +47,46 @@ OUT_DIR = Path(os.environ.get("RIGOL_OUT_DIR", Path(__file__).resolve().parent /
 INVALID = 9.9e37  # Rigol returns 9.9E37 when a measurement has no valid value
 
 mcp = FastMCP("Rigol DS1054Z")
+
+
+# --------------------------------------------------------------------------- #
+# matplotlib font-cache warmup (see plot_waveform)
+# --------------------------------------------------------------------------- #
+# matplotlib builds a font cache the first time it resolves a font. That build
+# is normally quick, but on Windows it opens/stats thousands of font files and,
+# with antivirus intercepting each one, can stall for minutes-to-tens-of-minutes.
+# plot_waveform imports matplotlib lazily, so without care that whole build lands
+# *inside* the first tool call, with no feedback to the client -- the tool looks
+# hung. Two guards:
+#   1) Pin a stable, writable, persistent MPLCONFIGDIR so the cache is built at
+#      most once *ever*. Without this, a spawn environment that hands matplotlib
+#      a non-persistent cache dir (stripped HOME, wiped TEMP) makes it rebuild on
+#      every call -- a permanent stall rather than a one-time warmup.
+#   2) Warm the cache in a background thread at startup, off the request path, so
+#      the first plot_waveform is instant and the stall (if any) never blocks a
+#      tool call or the MCP handshake.
+_MPL_CACHE = Path(__file__).resolve().parent / ".mplcache"
+try:
+    _MPL_CACHE.mkdir(parents=True, exist_ok=True)
+    os.environ.setdefault("MPLCONFIGDIR", str(_MPL_CACHE))
+except OSError:
+    pass  # e.g. read-only site-packages install: fall back to matplotlib's default
+
+
+def _warm_matplotlib():
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot  # noqa: F401  -- pulls in font_manager
+        from matplotlib.font_manager import FontProperties, findfont
+
+        findfont(FontProperties())  # force the one-time font-cache build now
+    except Exception:
+        pass  # matplotlib is optional; plot_waveform reports the real error if used
+
+
+threading.Thread(target=_warm_matplotlib, name="mpl-warm", daemon=True).start()
 
 
 # --------------------------------------------------------------------------- #
