@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "rigol": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["rigol_mcp.py"],
+      "env": {
+        "RIGOL_HOST": "192.168.178.96",
+        "RIGOL_PORT": "5555",
+        "RIGOL_TIMEOUT": "10"
+      }
+    }
+  }
+}

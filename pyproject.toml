@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rigol-mcp"
+version = "0.1.0"
+description = "MCP server for Rigol DS1000Z / MSO1000Z oscilloscopes over raw SCPI (no VISA/UltraSigma)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Valentino Saitz" }]
+keywords = ["mcp", "rigol", "oscilloscope", "scpi", "ds1054z", "ds1000z", "lxi", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+]
+dependencies = ["mcp[cli]"]
+
+[project.optional-dependencies]
+plot = ["matplotlib"]
+
+[project.scripts]
+rigol-mcp = "rigol_mcp:main"
+
+[project.urls]
+Homepage = "https://github.com/DVSProductions/rigol-mcp"
+Repository = "https://github.com/DVSProductions/rigol-mcp"
+Issues = "https://github.com/DVSProductions/rigol-mcp/issues"
+
+[tool.setuptools]
+py-modules = ["rigol_mcp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]

@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: check --output-format=github
+
+  build-and-import:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package (with plot extra)
+        run: pip install ".[plot]"
+      - name: Import smoke test (no hardware needed)
+        run: |
+          python - <<'PY'
+          import rigol_mcp
+          names = {t.name for t in rigol_mcp.mcp._tool_manager.list_tools()}
+          expected = {
+              "scope_info", "get_screenshot", "get_stats", "get_waveform",
+              "plot_waveform", "run_control", "set_channel", "set_timebase",
+              "set_trigger", "set_acquire", "scpi",
+          }
+          missing = expected - names
+          assert not missing, f"missing tools: {missing}"
+          print(f"OK: {len(names)} tools registered -> {sorted(names)}")
+          PY

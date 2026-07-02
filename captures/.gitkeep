@@ -1,0 +1,3 @@
+# This directory holds captured CSV/PNG output from get_waveform / plot_waveform.
+# The files themselves are gitignored (they can be tens of MB); this keeps the
+# empty directory in the repo so the default RIGOL_OUT_DIR exists on clone.
