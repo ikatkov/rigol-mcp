@@ -77,8 +77,16 @@ class ManualTests(unittest.TestCase):
     def test_missing_cache_explains_one_time_setup(self):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(reference, "_reference_dir", return_value=Path(directory)):
-                with self.assertRaisesRegex(ValueError, "scripts/cache_manual.py"):
+                with self.assertRaises(ValueError) as raised:
                     reference._read_text("programming-guide.md")
+                for text in (
+                    "Required one-time manual download",
+                    "not bundled",
+                    "python scripts/cache_manual.py",
+                    "pdftotext",
+                    "internet access",
+                ):
+                    self.assertIn(text, str(raised.exception))
 
 
 class MCPTransportTests(unittest.TestCase):
@@ -102,11 +110,21 @@ class MCPTransportTests(unittest.TestCase):
             async with ClientSession(reader, writer) as session:
                 initialized = await session.initialize()
                 self.assertIn("search_manual", initialized.instructions)
+                for text in (
+                    "Required one-time manual download",
+                    "not bundled",
+                    "python scripts/cache_manual.py",
+                    "pdftotext",
+                    "internet access",
+                ):
+                    self.assertIn(text, initialized.instructions[:512])
                 tools = {tool.name: tool for tool in (await session.list_tools()).tools}
                 self.assertEqual(len(tools), 13)
                 for name in ("search_manual", "get_manual"):
                     self.assertTrue(tools[name].annotations.readOnlyHint)
                     self.assertFalse(tools[name].annotations.openWorldHint)
+                    self.assertIn("not bundled", tools[name].description)
+                    self.assertIn("python scripts/cache_manual.py", tools[name].description)
                 searched = await session.call_tool("search_manual", {"query": ":WAV:PRE?"})
                 self.assertFalse(searched.isError)
                 result = json.loads(searched.content[0].text)
@@ -127,6 +145,26 @@ class MCPTransportTests(unittest.TestCase):
                 self.assertIn("Command family", index.contents[0].text)
                 invalid = await session.call_tool("get_manual", {"page": 0})
                 self.assertTrue(invalid.isError)
+
+        with tempfile.TemporaryDirectory() as directory:
+            params.env["RIGOL_MANUAL_DIR"] = directory
+            async with stdio_client(params) as (reader, writer):
+                async with ClientSession(reader, writer) as session:
+                    await session.initialize()
+                    for name, arguments in (
+                        ("get_manual", {}),
+                        ("search_manual", {"query": ":WAV:PRE?"}),
+                    ):
+                        result = await session.call_tool(name, arguments)
+                        self.assertTrue(result.isError)
+                        for text in (
+                            "Required one-time manual download",
+                            "not bundled",
+                            "python scripts/cache_manual.py",
+                            "pdftotext",
+                            "internet access",
+                        ):
+                            self.assertIn(text, result.content[0].text)
 
 
 if __name__ == "__main__":

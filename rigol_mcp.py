@@ -54,12 +54,16 @@ INVALID = 9.9e37  # Rigol returns 9.9E37 when a measurement has no valid value
 mcp = FastMCP(
     "Rigol DS1054Z",
     instructions=(
-        "Use the locally cached DS1000Z/MSO1000Z guide before unsupported SCPI commands: "
+        "Required one-time manual download: the PDF and Markdown are not bundled. "
+        "Before using search_manual or get_manual, install Poppler's pdftotext and run "
+        "python scripts/cache_manual.py from the server checkout with internet access. "
+        "This downloads and converts the guide once; later lookups are offline. "
+        "If the cache is missing, complete this setup or clearly report the requirement. "
+        "Use the cached DS1000Z/MSO1000Z guide before unsupported SCPI commands: "
         "search_manual(query) finds relevant PDF pages; get_manual(page) reads their full text. "
         "get_manual() or rigol://manual/index provides the index. These lookups are offline "
         "and never connect to the scope. Prefer this cached guide over web searches; browse "
         "only if local documentation is insufficient or a different manual/revision is needed. "
-        "If missing, run python scripts/cache_manual.py once from the checkout. "
         "Scope tools must be called sequentially because the scope accepts one client at a time."
     ),
 )
@@ -71,6 +75,11 @@ mcp = FastMCP(
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False})
 def search_manual(query: str, limit: int = 5) -> dict:
     """Search the locally cached RIGOL DS1000Z/MSO1000Z programming guide.
+
+    Required one-time download: the manual is not bundled. Install Poppler's
+    pdftotext, then run python scripts/cache_manual.py from the server checkout
+    with internet access to download the PDF and generate its Markdown cache.
+    If missing, complete or report this setup before retrying; later calls are offline.
 
     Use before raw SCPI commands instead of searching the web for the manual.
     Accepts short or long SCPI spellings (e.g. :WAV:PRE? or :WAVeform:PREamble?)
@@ -85,6 +94,11 @@ def search_manual(query: str, limit: int = 5) -> dict:
 @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False})
 def get_manual(page: int | None = None, page_count: int = 1) -> str:
     """Read the cached programming guide index or complete pages without internet.
+
+    Required one-time download: the manual is not bundled. Install Poppler's
+    pdftotext, then run python scripts/cache_manual.py from the server checkout
+    with internet access to download the PDF and generate its Markdown cache.
+    If missing, complete or report this setup before retrying; later calls are offline.
 
     With no page, returns edition, usage guidance and a concise command-family index.
     With page, returns the full extracted text starting at that one-based PDF page
@@ -102,13 +116,19 @@ def get_manual(page: int | None = None, page_count: int = 1) -> str:
 
 @mcp.resource("rigol://manual/index", mime_type="text/markdown")
 def manual_index() -> str:
-    """Cached programming guide metadata, lookup instructions and command-family index."""
+    """Guide index; first download its cache with python scripts/cache_manual.py.
+
+    The manual is not bundled. One-time setup requires internet and Poppler's pdftotext.
+    """
     return rigol_reference.index()
 
 
 @mcp.resource("rigol://manual/page/{page}", mime_type="text/markdown")
 def manual_page(page: int) -> str:
-    """Full extracted text of a one-based physical PDF page in the cached guide."""
+    """Read a PDF page after the one-time download: python scripts/cache_manual.py.
+
+    The manual is not bundled. One-time setup requires internet and Poppler's pdftotext.
+    """
     return rigol_reference.read_pages(page)
 
 
@@ -621,7 +641,9 @@ def scpi(command: str) -> str:
     command is written and 'OK' is returned. Use for any command not covered by
     the other tools. First call search_manual then get_manual to check the cached
     DS1000Z programming guide for syntax, parameters and model-specific limits;
-    no internet lookup is needed for commands covered by the cached manual."""
+    the manual is not bundled. Its required one-time download is
+    python scripts/cache_manual.py from the server checkout (internet and Poppler's
+    pdftotext required). Once cached, no internet lookup is needed for covered commands."""
     with Scope() as s:
         if "?" in command:                 # '?' marks a query; it may be followed by args
             return s.query(command)

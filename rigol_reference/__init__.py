@@ -34,9 +34,13 @@ def _read_text(filename: str) -> str:
         return _reference_dir().joinpath(filename).read_text(encoding="utf-8")
     except FileNotFoundError as exc:
         raise ValueError(
-            "Programming guide is not cached. Run python scripts/cache_manual.py once from "
-            "the checkout, then reconnect the MCP. For a custom cache, set RIGOL_MANUAL_DIR "
-            "to its directory. No automatic download or scope connection was attempted."
+            "Required one-time manual download: the PDF and Markdown are not bundled, "
+            "and the local cache is missing. Install Poppler's pdftotext, then run "
+            "python scripts/cache_manual.py from the server checkout with internet access "
+            "to download the PDF and generate Markdown. Retry the documentation lookup "
+            "after setup; later lookups are offline. For a custom cache, set RIGOL_MANUAL_DIR "
+            "for both setup and the server. No automatic download or scope connection "
+            "was attempted."
         ) from exc
 
 

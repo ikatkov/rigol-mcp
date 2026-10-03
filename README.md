@@ -13,6 +13,13 @@ over Ethernet — no UltraSigma, no NI-VISA, no drivers. The scope is an LXI
 instrument that accepts plain SCPI on a raw TCP socket (port **5555**); this
 server wraps that as MCP tools.
 
+> **Required extra step for manual lookup: download the guide once.** The PDF and
+> Markdown are **not included** in this repository or package, and installing the
+> MCP does not download them. Before using `search_manual` or `get_manual`, install
+> Poppler's `pdftotext` and run `python scripts/cache_manual.py` from the checkout
+> with internet access. The script downloads the PDF and generates the local
+> Markdown cache; subsequent lookups work offline.
+
 ## Tools
 
 | Tool | What it does |
@@ -31,7 +38,14 @@ server wraps that as MCP tools.
 | `search_manual` | search the cached programming guide by command or keywords, offline |
 | `get_manual` | read the guide index or up to five complete PDF pages, offline |
 
-## Offline programming guide
+## Required one-time manual download
+
+**Manual lookup will not work on a fresh installation until you complete this
+download step.** The PDF and full Markdown extraction are excluded from Git and
+package distributions. The vendor's copyright notice requires prior written
+approval from RIGOL for copying or rearranging the manual; redistribution
+permission has not been established. See the
+[notice on physical PDF page 3](https://www.batronix.com/pdf/Rigol/ProgrammingGuide/MSO1000Z_DS1000Z_ProgrammingGuide_EN.pdf#page=3).
 
 The server can cache the December 2015
 [RIGOL MSO1000Z/DS1000Z programming guide](https://www.batronix.com/pdf/Rigol/ProgrammingGuide/MSO1000Z_DS1000Z_ProgrammingGuide_EN.pdf)
@@ -41,20 +55,27 @@ All 260 physical PDF pages are retained, including the vendor notices. The manua
 software version `00.04.03.SP2`; command availability depends on the scope's
 model, options and firmware.
 
-After cloning, install Poppler's `pdftotext` (`brew install poppler` on macOS or
-`sudo apt-get install poppler-utils` on Debian/Ubuntu) and run the one-time setup:
+After cloning and installing the MCP, install Poppler's `pdftotext`
+(`brew install poppler` on macOS or `sudo apt-get install poppler-utils` on
+Debian/Ubuntu). Then, **while online, run this required command once from the checkout**:
 
 ```sh
 python scripts/cache_manual.py
 ```
 
 The script verifies the pinned PDF checksum and converts it to Markdown. A new
-checkout stores the private cache in `~/.cache/rigol-mcp/reference`; existing
+checkout creates `programming-guide.pdf`, `programming-guide.md` and `manifest.json`
+in the private cache at `~/.cache/rigol-mcp/reference`; existing
 editable installs with a cache in `rigol_reference/` keep using it. Repeat runs
 reuse the cache without downloading or converting again. `--refresh` explicitly
 downloads the same edition again. Set `RIGOL_MANUAL_DIR` for both setup and the
 MCP server to use a custom directory. The PDF and Markdown are not committed or
 redistributed in public builds; only the code and source metadata are published.
+
+If an agent calls the documentation tools before setup, the MCP returns an error
+with this download command and its prerequisites. The agent should complete the
+setup or clearly explain that it is required, then retry the lookup. The tools
+and server startup never download the manual automatically.
 
 Before using raw `scpi`, call `search_manual` with command syntax or keywords,
 then `get_manual` with a returned `pdf_page`. For example:
