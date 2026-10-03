@@ -1,5 +1,5 @@
 # Required: the official Model Context Protocol Python SDK (FastMCP).
-mcp[cli]
+mcp[cli]>=1.30,<2
 
 # Optional: only needed for the plot_waveform tool (renders traces to PNG).
 # matplotlib

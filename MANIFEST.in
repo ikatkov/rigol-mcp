@@ -1,0 +1,4 @@
+include scripts/convert_manual.py
+include scripts/cache_manual.py
+exclude rigol_reference/programming-guide.pdf
+exclude rigol_reference/programming-guide.md

@@ -37,8 +37,21 @@ jobs:
               "scope_info", "get_screenshot", "get_stats", "get_waveform",
               "plot_waveform", "run_control", "set_channel", "set_timebase",
               "set_trigger", "set_acquire", "scpi",
+              "search_manual", "get_manual",
           }
           missing = expected - names
           assert not missing, f"missing tools: {missing}"
           print(f"OK: {len(names)} tools registered -> {sorted(names)}")
           PY
+      - name: Restore private reference cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/rigol-mcp/reference
+          key: rigol-guide-c83f9970ef087738d07471192616b5ca5bdbd04093c36a98cc4842029dec4e95
+      - name: Prepare private reference cache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          python scripts/cache_manual.py
+      - name: Offline manual and MCP transport tests
+        run: python -m unittest discover -s tests -v

@@ -17,6 +17,11 @@ pip install ruff
 - **Lint:** `ruff check .` (and `ruff format .` if you want auto-formatting).
 - **Smoke test:** `python -c "import rigol_mcp"` must succeed — this validates that
   all tools register without a scope attached. CI runs this on Python 3.10–3.13.
+- **Offline reference tests:** `python -m unittest discover -s tests -v` checks
+  source provenance, page retrieval, SCPI abbreviation search and MCP transport
+  without a scope connection. Run `python scripts/cache_manual.py` once first
+  (requires Poppler's `pdftotext`). The guide's PDF and Markdown stay in the private
+  cache and must not be committed or redistributed with the MIT-licensed code.
 - If you touched behavior that needs real hardware, describe how you tested it
   (scope model + firmware) in the PR, since CI can't reach an instrument.
 

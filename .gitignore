@@ -31,3 +31,10 @@ ENV/
 *.swp
 .DS_Store
 Thumbs.db
+
+# Vendor documentation is cached locally, not redistributed with the public fork.
+rigol_reference/programming-guide.pdf
+rigol_reference/programming-guide.md
+
+# Personal installation notes contain local paths and instrument identifiers.
+MCP-SETUP.md

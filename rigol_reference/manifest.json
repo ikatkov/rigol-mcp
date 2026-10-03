@@ -1,0 +1,10 @@
+{
+  "title": "RIGOL MSO1000Z/DS1000Z Programming Guide",
+  "edition": "December 2015",
+  "publication_number": "PGA19108-1110",
+  "manual_software_version": "00.04.03.SP2",
+  "source_url": "https://www.batronix.com/pdf/Rigol/ProgrammingGuide/MSO1000Z_DS1000Z_ProgrammingGuide_EN.pdf",
+  "pdf_sha256": "c83f9970ef087738d07471192616b5ca5bdbd04093c36a98cc4842029dec4e95",
+  "page_count": 260,
+  "extraction": "Poppler pdftotext -layout -enc UTF-8"
+}
