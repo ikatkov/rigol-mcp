@@ -1,12 +1,9 @@
 # Rigol DS1054Z MCP server
 
-[![CI](https://github.com/ikatkov/rigol-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/ikatkov/rigol-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/DVSProductions/rigol-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/DVSProductions/rigol-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/MCP-server-orange.svg)](https://modelcontextprotocol.io)
-
-This fork of [DVSProductions/rigol-mcp](https://github.com/DVSProductions/rigol-mcp)
-adds offline programming-guide search, page retrieval and MCP SDK 1.x compatibility.
 
 Drive a Rigol DS1054Z (or any DS1000Z / MSO1000Z series scope) from Codex or Claude Code
 over Ethernet — no UltraSigma, no NI-VISA, no drivers. The scope is an LXI

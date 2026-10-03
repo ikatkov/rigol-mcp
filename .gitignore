@@ -38,3 +38,6 @@ rigol_reference/programming-guide.md
 
 # Personal installation notes contain local paths and instrument identifiers.
 MCP-SETUP.md
+
+# Local dependency resolution for contributors; this library uses pyproject.toml.
+uv.lock
